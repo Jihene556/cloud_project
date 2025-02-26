@@ -30,9 +30,9 @@ services:
     ports:
       - "5432:5432"
 
-  vote:
+  vote1:
       build: ./vote  # Construire l'image à partir du Dockerfile dans ./vote
-      container_name: vote
+      container_name: vote1
       depends_on:
         - redis
           #condition: service_healthy
@@ -41,7 +41,6 @@ services:
         - REDIS_PORT=6379
       ports:
       - "5000:5000"
-
 
   vote2:
     build: ./vote  # Construire l'image à partir du Dockerfile dans ./vote
@@ -54,6 +53,16 @@ services:
       - REDIS_PORT=6379
     ports:
     - "5001:5000"
+
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    depends_on:
+      - vote1
+      - vote2
+    ports:
+    - "80:80"
+
 
 volumes:
   db-data: 
