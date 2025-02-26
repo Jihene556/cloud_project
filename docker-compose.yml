@@ -41,6 +41,17 @@ services:
         - REDIS_PORT=6379
       ports:
       - "5000:5000"
+  vote2:
+      build: ./vote  # Construire l'image à partir du Dockerfile dans ./vote
+      container_name: vote2
+      depends_on:
+        - redis
+          #condition: service_healthy
+      environment:
+        - REDIS_HOST=redis
+        - REDIS_PORT=6379
+      ports:
+      - "5001:5000"
 
   result:
     build: ./result  # Construire l'image à partir du Dockerfile dans ./vote
