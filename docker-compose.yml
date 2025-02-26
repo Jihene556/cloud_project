@@ -63,6 +63,15 @@ services:
     ports:
     - "80:80"
 
+  worker:
+    build: ./worker
+    container_name: worker
+    depends_on:
+      - redis
+      - db
+    ports:
+    - "8000:8000"
+
 
 volumes:
   db-data: 
