@@ -85,7 +85,7 @@ services:
     - "8000:8000"
 
   seed:
-    build: ./seed
+    build: ./seed-data
     container_name: seed
     depends_on:
       - nginx
