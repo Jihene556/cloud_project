@@ -84,6 +84,11 @@ services:
     ports:
     - "8000:8000"
 
+  seed:
+    build: ./seed
+    container_name: seed
+    depends_on:
+      - nginx
 
 volumes:
   db-data: 
