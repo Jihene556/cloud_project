@@ -1,28 +1,25 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
-ARG TARGETPLATFORM
-ARG TARGETARCH
-ARG BUILDPLATFORM
+# Utiliser l'image officielle .NET SDK
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 
-RUN echo "Building for TARGETPLATFORM=$TARGETPLATFORM, TARGETARCH=$TARGETARCH, BUILDPLATFORM=$BUILDPLATFORM"
-
-WORKDIR /source
-
-COPY . . 
-
-RUN dotnet restore -a $TARGETARCH
-
-# Compilation et publication de l'application
-RUN dotnet publish -c Release -o /app -a $TARGETARCH --self-contained false --no-restore
-
-# Création de l'image finale
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
-
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copie de l'application publiée depuis l'étape de build
-COPY --from=builder /source /app
+# Copier les fichiers du projet dans le conteneur
+COPY . .
 
-EXPOSE 8000
+# Restaurer les dépendances du projet (nuget)
+RUN dotnet restore
 
-# Définition du point d'entrée
-CMD ["dotnet", "Worker.dll"]
+# Construire le projet
+RUN dotnet build --configuration Release
+
+# Publier l'application (créer une version prête pour la production)
+RUN dotnet publish --configuration Release --output /app/publish
+
+# Créer l'image finale avec l'image runtime .NET
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+COPY --from=build /app/publish .
+
+# Définir la commande à exécuter pour démarrer l'application
+ENTRYPOINT ["dotnet", "Worker.dll"]
