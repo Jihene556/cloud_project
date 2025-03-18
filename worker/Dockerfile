@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS builder
+FROM --platform=${BUILDPLATFORM} mcr.microsoft.com/dotnet/sdk:8.0 AS builder
 ARG TARGETPLATFORM
 ARG TARGETARCH
 ARG BUILDPLATFORM
@@ -15,7 +15,7 @@ RUN dotnet restore -a $TARGETARCH
 RUN dotnet publish -c Release -o /app -a $TARGETARCH --self-contained false --no-restore
 
 # Création de l'image finale
-FROM mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
+FROM --platform=${TARGETPLATFORM} mcr.microsoft.com/dotnet/runtime:8.0 AS runtime
 
 WORKDIR /app
 
