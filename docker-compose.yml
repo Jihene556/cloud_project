@@ -21,6 +21,7 @@ services:
       POSTGRES_DB: postgres # same
     volumes:
       - db-data:/var/lib/postgresql/data  # Persistent database storage
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql  # Ajout du script SQL
       - ./healthchecks:/healthchecks      # Health check scripts
     healthcheck:
       test: ["CMD", "sh", "/healthchecks/postgres.sh"]
