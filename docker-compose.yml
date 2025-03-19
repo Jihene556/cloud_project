@@ -21,7 +21,7 @@ services:
       POSTGRES_DB: postgres # same
     volumes:
       - db-data:/var/lib/postgresql/data  # Persistent database storage
-      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql  # Ajout du script SQL
+      #- ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql  # Ajout du script SQL
       - ./healthchecks:/healthchecks      # Health check scripts
     healthcheck:
       test: ["CMD", "sh", "/healthchecks/postgres.sh"]
@@ -54,6 +54,18 @@ services:
       ports:
       - "5001:5000"
 
+  vote3:
+      build: ./vote  # Construire l'image à partir du Dockerfile dans ./vote
+      container_name: vote3
+      depends_on:
+        - redis
+          #condition: service_healthy
+      environment:
+        - REDIS_HOST=redis
+        - REDIS_PORT=6379
+      ports:
+      - "5002:5000"
+
   result:
     build: ./result  # Construire l'image à partir du Dockerfile dans ./vote
     container_name: result
@@ -67,13 +79,15 @@ services:
     - "3001:3000"
 
   nginx:
-    build: ./nginx
+    build: ./nginx  # Construire l'image à partir du Dockerfile dans ./nginx
     container_name: nginx
     depends_on:
       - vote1
       - vote2
+      - vote3
     ports:
-    - "80:80"
+      - "80:80"  # Expose le port 80 du conteneur pour le service nginx
+    
 
   worker:
     build: ./worker
@@ -85,10 +99,15 @@ services:
     - "8000:8000"
 
   seed:
-    build: ./seed-data
+    build: ./seed-data  
     container_name: seed
     depends_on:
-      - nginx
+      - nginx  # Dépendance sur nginx, s'assure que nginx est démarré avant seed
+    environment:
+      - NGINX_HOST=nginx
+      - NGINX_PORT = 80  
+    ports:
+      - "8080:8080"  
 
 volumes:
   db-data: 

@@ -24,4 +24,6 @@ COPY nginx.conf /etc/nginx/conf.d/
 # Expose port 80 for Nginx
 EXPOSE 80
 
+# Lancer Nginx en mode avant-plan
+CMD ["nginx", "-g", "daemon off;"]
 

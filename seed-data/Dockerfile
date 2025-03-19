@@ -1,26 +1,20 @@
-#FROM python:3.9-slim
-
-#WORKDIR /app
-
-#COPY . .
-
-#RUN python make-data.py
-
-# Install apache2-utils for the 'ab' utility and other dependencies
-#RUN apt-get update && apt-get install -y apache2-utils bash && rm -rf /var/lib/apt/lists/*
-
-#CMD ["bash", "generate-votes.sh"]
-
-# Use Python 3.9 slim image as base
 FROM python:3.9-slim
-
-# Set the working directory
 WORKDIR /app
 
-# Copy necessary files and install dependencies
-COPY make-data.py /app/
-COPY generate-votes.sh /app/
-RUN apt-get update && apt-get install -y apache2-utils
+# Install required system package for benchmarking (apache2-utils)
+RUN apt-get update && apt-get install -y apache2-utils && rm -rf /var/lib/apt/lists/*
 
-# Run the make-data.py and generate-votes.sh script
-CMD ["bash", "generate-votes.sh"]
+# Copy the necessary scripts into the container
+COPY make-data.py generate-votes.sh ./
+
+# Fix line endings for generate-votes.sh
+RUN sed -i 's/\r$//' generate-votes.sh
+
+# Execute make-data.py during the build phase
+RUN python make-data.py
+
+# Grant execute permissions to generate-votes.sh
+# RUN chmod +x generate-votes.sh
+
+# Define the startup command
+CMD ["/app/generate-votes.sh"]
