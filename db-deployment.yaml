@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+spec:
+  selector:
+    matchLabels:
+      app: db
+  replicas: 1  
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+
+      volumes:
+      - name: db-storage
+        persistentVolumeClaim:
+          claimName: db-pvc
+
+      containers:
+      - name: db
+        image: postgres:15  
+        env:
+        - name: POSTGRES_USER
+          value: "postgres"
+        - name: POSTGRES_PASSWORD
+          value: "postgres"
+        - name: POSTGRES_DB
+          value: "postgres"
+        
+        volumeMounts:
+        - name: db-storage
+          mountPath: /var/lib/postgresql/data  # Chemin où PostgreSQL stocke ses données
+          subPath: data  # Pour ne pas écraser la configuration
+          
+      ports:
+      - containerPort: 5432  # Port PostgreSQL par défaut

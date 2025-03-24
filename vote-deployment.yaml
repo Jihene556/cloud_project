@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vote
+spec:
+  selector:
+    matchLabels:
+      app: vote
+  replicas: 3  # Nombre de répliques
+  template:
+    metadata:
+      name: vote
+      labels:
+        app: vote
+    spec:
+      containers:
+      - name: vote
+        image: europe-west9-docker.pkg.dev/tuto-jihene/voting-image/vote1:latest 
+        ports:
+        - containerPort: 5000  # Port sur lequel l'application écoute
